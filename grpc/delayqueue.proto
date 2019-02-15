@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package delayqueue;
+
+service DelayQueue {
+    rpc Ping (PingRequest) returns (PingReply) {
+    }
+
+    rpc Push (PushRequest) returns (PushReply) {
+    }
+
+    rpc Pop (PopRequest) returns (PopReply) {
+    }
+
+    rpc Del (DelRequest) returns (DelReply) {
+    }
+}
+
+message PingRequest {
+    string msg = 1;
+}
+message PingReply {
+    string msg = 1;
+}
+
+message PushRequest {
+    string key = 1;
+    int64 timeOut = 2;
+    string data = 3;
+}
+message PushReply {
+}
+
+message PopRequest {
+    int64 time = 1;
+    string data = 2;
+}
+message PopReply {
+    string data = 1;
+}
+
+message DelRequest {
+    string key = 1;
+}
+message DelReply {
+}
