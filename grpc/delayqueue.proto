@@ -15,7 +15,7 @@ service DelayQueue {
     rpc Del (DelRequest) returns (DelReply) {
     }
 }
-
+//Ping
 message PingRequest {
     string msg = 1;
 }
@@ -23,24 +23,25 @@ message PingReply {
     string msg = 1;
 }
 
+//Push
 message PushRequest {
-    string key = 1;
-    int64 timeOut = 2;
-    string data = 3;
+    string data = 1;
+    int64 ttr = 2; //time to return
 }
 message PushReply {
 }
 
+//Pop
 message PopRequest {
-    int64 time = 1;
-    string data = 2;
+    int64 timeout = 1; // block Seconds
 }
 message PopReply {
     string data = 1;
 }
 
+//Del
 message DelRequest {
-    string key = 1;
+    string data = 1;
 }
 message DelReply {
 }
