@@ -35,7 +35,7 @@ func publish(payloadKey string) {
 	if len(payload) == 0 {
 		return
 	}
-	url := payloadKey[common.PayloadKeyLength + 1:]
+	url := payloadKey[common.PayloadKeyLength+1:]
 	err = http_client.SendPostRequest(url, payload) //TODO 添加重试
 	if err != nil {
 		fmt.Println("Publisher firstly send post err:", err)
