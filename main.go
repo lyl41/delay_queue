@@ -17,6 +17,7 @@ func main() {
 		panic(errors.New("监听" + address + "失败"))
 	}
 	go daemon.Detect() // TODO need graceful close？
+	go daemon.Publish()
 	s := api.Server{}
 	grpcServer := grpc.NewServer()
 	delayqueue.RegisterDelayQueueServer(grpcServer, s)

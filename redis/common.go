@@ -27,8 +27,3 @@ type RedisKv struct {
 	Value string
 	TTR   int64 //time to return
 }
-
-const (
-	QueueName = `delay_queue_queue`
-	ZsetName  = `delay_queue_zset`
-)

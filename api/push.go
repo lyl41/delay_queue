@@ -25,7 +25,7 @@ func (Server) Push(ctx context.Context, req *delayqueue.PushRequest) (reply *del
 	if err = checkPush(req); err != nil {
 		return
 	}
-	err = logic.Push(req.Data, req.Ttr)
+	err = logic.Push(req.Data, req.Ttr, req.NotifyUrl)
 	if err != nil {
 		return
 	}

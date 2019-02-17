@@ -1,15 +1,11 @@
 package daemon
 
 import (
+	"delay_queue/common"
 	"delay_queue/redis"
 	"fmt"
 	"strconv"
 	"time"
-)
-
-const (
-	//zrange(0, DetectStop), http://doc.redisfans.com/sorted_set/zrange.html
-	DetectStop = 5
 )
 
 func Detect() {
@@ -23,7 +19,7 @@ func Detect() {
 }
 
 func detect() {
-	payloadKeys, err := redis.RangeZset(0, DetectStop)
+	payloadKeys, err := redis.RangeZset(0, common.DetectStop)
 	if err != nil {
 		fmt.Println("Detector zrange err: ", err)
 		return
@@ -36,13 +32,18 @@ func detect() {
 		}
 		score, _ := strconv.ParseInt(val, 10, 64)
 		if score <= timestamp { //Need to return, Push to ready queue.
-			err = redis.PushReadyQueue(payloadKeys[i-1])
+			payloadKey := payloadKeys[i-1]
+			queueName := common.NotifyQueueName
+			if len(payloadKey) == common.PayloadKeyLength {
+				queueName = common.QueueName
+			}
+			err = redis.PushReadyQueue(queueName, payloadKey)
 			if err != nil {
 				fmt.Println("Detector PushReadyQueue err, ", err)
 				continue
 			}
-			fmt.Println("success push to ready queue,", payloadKeys[i-1], val, time.Now().Unix())
-			payloadKeysNeedDel = append(payloadKeysNeedDel, payloadKeys[i-1])
+			fmt.Println("success push to ready queue,", payloadKey, val, time.Now().Unix())
+			payloadKeysNeedDel = append(payloadKeysNeedDel, payloadKey)
 		}
 	}
 	if len(payloadKeysNeedDel) > 0 {

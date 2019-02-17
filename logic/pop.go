@@ -1,9 +1,12 @@
 package logic
 
-import "delay_queue/redis"
+import (
+	"delay_queue/common"
+	"delay_queue/redis"
+)
 
 func Pop(timeout int64) (data string, err error) {
-	payloadKey, err := redis.PopReadyQueue(int(timeout))
+	payloadKey, err := redis.PopReadyQueue(common.QueueName, int(timeout))
 	if err != nil {
 		return
 	}

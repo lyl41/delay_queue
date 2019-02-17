@@ -6,10 +6,15 @@ import (
 )
 
 func TestSetPayload(t *testing.T) {
-	if err := SetPayload("qwe", "value"); err != nil {
+	if err := SetPayload("qw e_https:// falj/232", "value"); err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("ok")
+}
+
+func TestGetPayload(t *testing.T) {
+	payload, err := GetPayload("qw e_https:// falj/232")
+	fmt.Println(payload, err)
 }
 
 //func TestSetMultiPayload(t *testing.T) {

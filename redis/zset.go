@@ -1,11 +1,14 @@
 package redis
 
-import "github.com/garyburd/redigo/redis"
+import (
+	"delay_queue/common"
+	"github.com/garyburd/redigo/redis"
+)
 
 func AddZset(payloadKey string, score int64) (err error) {
 	con := pool.Get()
 	defer con.Close()
-	_, err = con.Do("zadd", ZsetName, score, payloadKey)
+	_, err = con.Do("zadd", common.ZsetName, score, payloadKey)
 	if err != nil {
 		return
 	}
@@ -18,7 +21,7 @@ func RemZset(payloadKeys []string) (err error) {
 	}
 	con := pool.Get()
 	defer con.Close()
-	_, err = con.Do("zrem", redis.Args{}.Add(ZsetName).AddFlat(payloadKeys)...) //TODO 这个点易错。
+	_, err = con.Do("zrem", redis.Args{}.Add(common.ZsetName).AddFlat(payloadKeys)...) //TODO 这个点易错。
 	return
 }
 
@@ -26,6 +29,6 @@ func RemZset(payloadKeys []string) (err error) {
 func RangeZset(start, end int) (payloadKeys []string, err error) {
 	con := pool.Get()
 	defer con.Close()
-	payloadKeys, err = redis.Strings(con.Do("zrange", ZsetName, start, end, "withscores"))
+	payloadKeys, err = redis.Strings(con.Do("zrange", common.ZsetName, start, end, "withscores"))
 	return
 }
