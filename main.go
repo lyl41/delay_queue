@@ -16,11 +16,11 @@ func main() {
 	if err != nil {
 		panic(errors.New("监听" + address + "失败"))
 	}
-	go daemon.Detect()// TODO need graceful close？
+	go daemon.Detect() // TODO need graceful close？
 	s := api.Server{}
 	grpcServer := grpc.NewServer()
 	delayqueue.RegisterDelayQueueServer(grpcServer, s)
-	fmt.Println("grpc Server listening ",address + "...")
+	fmt.Println("grpc Server listening ", address+"...")
 	if err = grpcServer.Serve(l); err != nil {
 		panic(err)
 	}

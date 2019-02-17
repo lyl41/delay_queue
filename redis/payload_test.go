@@ -6,7 +6,7 @@ import (
 )
 
 func TestSetPayload(t *testing.T) {
-	if err := SetPayload("qwe", "value");err != nil {
+	if err := SetPayload("qwe", "value"); err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("ok")

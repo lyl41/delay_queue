@@ -18,7 +18,7 @@ func RemZset(payloadKeys []string) (err error) {
 	}
 	con := pool.Get()
 	defer con.Close()
-	_, err = con.Do("zrem", redis.Args{}.Add(ZsetName).AddFlat(payloadKeys)...)//TODO 这个点易错。
+	_, err = con.Do("zrem", redis.Args{}.Add(ZsetName).AddFlat(payloadKeys)...) //TODO 这个点易错。
 	return
 }
 

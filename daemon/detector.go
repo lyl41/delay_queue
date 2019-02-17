@@ -17,12 +17,12 @@ func Detect() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
-		<- ticker.C
+		<-ticker.C
 		detect()
 	}
 }
 
-func detect(){
+func detect() {
 	payloadKeys, err := redis.RangeZset(0, DetectStop)
 	if err != nil {
 		fmt.Println("Detector zrange err: ", err)

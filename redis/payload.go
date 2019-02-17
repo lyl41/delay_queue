@@ -38,4 +38,3 @@ func SetMultiPayload(kv []*RedisKv) (successCount int, err error) { //TODO ä¼˜åŒ
 	}
 	return
 }
-

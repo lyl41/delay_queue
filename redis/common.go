@@ -25,10 +25,10 @@ func init() {
 type RedisKv struct {
 	Key   string
 	Value string
-	TTR int64 //time to return
+	TTR   int64 //time to return
 }
 
 const (
 	QueueName = `delay_queue_queue`
-	ZsetName = `delay_queue_zset`
+	ZsetName  = `delay_queue_zset`
 )
