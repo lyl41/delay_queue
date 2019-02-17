@@ -10,9 +10,11 @@
 - 提供grpc接口
 - 向队列中Push数据，比如序列化后的json数据，以及需要改数据返回的时间戳。
 - 从队列中Pop数据，提供一个超时时间timeout，接口会阻塞，直到ready queue中有数据或者超过timeout。
+- publish模式，Push时可以传入notify_url，到期后发送post请求通知。
 
 ## 接口实现：
 - Push：为每个数据生成id，存入数据池和zset中。
 - Pop：利用redis的list中brpop命令，传入超时时间，接口阻塞直到有lpush数据或者超时，返回第一条数据。
+- publish模式：后台goroutine不断从ready queue中阻塞式轮询，如果有数据，那么post请求指定的notify_url地址通知调用者。
 
 
