@@ -6,6 +6,11 @@
 - 后台goroutine每秒钟从zset中利用zrange取出值最小的前5个，判断当前时间戳timestamp如果大于等于该数据TTR，那么将这个数据放入ready queue。
 - ready queue是redis的list，lpush加入队列，brpop出队列。
 
+
+
+![image](https://github.com/hackssssss/test_git/blob/master/images/20190218195349703.png)
+
+
 ## 已有功能：
 - 提供grpc接口
 - 向队列中Push数据，比如序列化后的json数据，以及需要改数据返回的时间戳。
