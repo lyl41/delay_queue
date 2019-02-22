@@ -26,6 +26,13 @@ func GetPayload(payloadKey string) (payload string, err error) {
 	return
 }
 
+func DelPayload(payloadKey string) (err error) {
+	con := pool.Get()
+	defer con.Close()
+	_, err = con.Do("del", payloadKey)
+	return
+}
+
 func SetMultiPayload(kv []*RedisKv) (successCount int, err error) { //TODO 优化一下批量查询，pipeline之类的。
 	con := pool.Get()
 	defer con.Close()

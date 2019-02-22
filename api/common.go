@@ -14,10 +14,6 @@ var (
 	errParams = errors.New("参数错误")
 )
 
-func (Server) Del(context.Context, *delayqueue.DelRequest) (*delayqueue.DelReply, error) {
-	panic("implement me")
-}
-
 func (Server) Ping(ctx context.Context, req *delayqueue.PingRequest) (*delayqueue.PingReply, error) {
 	fmt.Println("recv Ping msg:" + req.Msg)
 	return &delayqueue.PingReply{Msg: "PONG~"}, nil

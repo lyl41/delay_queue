@@ -6,7 +6,7 @@ import (
 	"delay_queue/redis"
 )
 
-func Push(value string, TTR int64, notifyUrl string) (err error) {
+func Push(value string, TTR int64, notifyUrl string) (payloadKey string, err error) {
 	key := util.RandomStr(common.PayloadKeyLength) //generate payload key or id
 	if notifyUrl != "" {
 		key = key + common.KeySep + notifyUrl //len(key) > 16
@@ -19,5 +19,6 @@ func Push(value string, TTR int64, notifyUrl string) (err error) {
 	if err != nil {
 		return
 	}
+	payloadKey = key
 	return
 }

@@ -18,8 +18,8 @@ var (
 //产生随机字符串，包括英文大小写字母与数字
 func RandomStr(length int) string {
 	randomStr := make([]byte, 0, length)
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < length; i++ {
-		rand.Seed(time.Now().UnixNano())
 		c := byte(baseStr[rand.Int63()%limitStr])
 		randomStr = append(randomStr, c)
 	}
@@ -29,8 +29,8 @@ func RandomStr(length int) string {
 //产生随机数字形式的字符串
 func RandomNumberStr(length int) string {
 	randomNumberStr := make([]byte, 0, length)
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < length; i++ {
-		rand.Seed(time.Now().UnixNano())
 		c := byte(baseNum[rand.Int63()%limitNumberStr])
 		randomNumberStr = append(randomNumberStr, c)
 	}

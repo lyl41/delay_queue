@@ -30,6 +30,7 @@ message PushRequest {
     string notify_url = 3; //http notify model; if notify_url is empty, you can polling by grpc interface 'Pop'
 }
 message PushReply {
+    string dataId = 1; //unique id of data which Pushed.
 }
 
 //Pop
@@ -42,7 +43,7 @@ message PopReply {
 
 //Del
 message DelRequest {
-    string data = 1;
+    string dataId = 1;
 }
 message DelReply {
 }
