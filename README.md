@@ -15,7 +15,7 @@
 - 提供grpc接口
 - 向队列中Push数据，比如序列化后的json数据，以及需要改数据返回的时间戳。
 - 从队列中Pop数据，提供一个超时时间timeout，接口会阻塞，直到ready queue中有数据或者超过timeout。
-- publish模式，Push时可以传入notify_url，到期后发送post请求通知。
+- publish模式，Push时可以传入notify_url，到期后发送post请求通知，如果post请求失败，或者post请求返回的内容不是'SUCCESS'，会发起重试，重试的间隔为2s/8s/30s/2m/5m/30m/60m。
 - 删除已经push的消息，根据Push传回的唯一id，来删除延时队列中对应的数据。
 
 ## 接口实现：
