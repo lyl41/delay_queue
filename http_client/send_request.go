@@ -9,6 +9,7 @@ import (
 
 const (
 	ContentTypeJson = `application/json`
+	PostResultSuccess = `SUCCESS`
 )
 
 func SendPostRequest(url, data string) (err error) {
@@ -17,9 +18,12 @@ func SendPostRequest(url, data string) (err error) {
 		defer resp.Body.Close()
 	}
 	if err != nil {
+		fmt.Println("post err", err)
 		return
 	}
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	if strings.ToUpper(string(body)) != PostResultSuccess {
+		fmt.Println("post result is not SUCCESS, ", string(body))
+	}
 	return
 }

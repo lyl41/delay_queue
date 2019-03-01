@@ -5,6 +5,7 @@ import (
 	"delay_queue/http_client"
 	"delay_queue/redis"
 	"fmt"
+	"time"
 )
 
 func Publish() {
@@ -22,6 +23,8 @@ func Publish() {
 	}
 }
 
+var PostFrequency = []int{0, 2, 8, 30, 60*2, 60*5, 60*30, 60*60}
+
 func publish(payloadKey string) {
 	if len(payloadKey) <= common.PayloadKeyLength {
 		fmt.Println("Publisher payloadKey not valid, ", payloadKey)
@@ -36,9 +39,38 @@ func publish(payloadKey string) {
 		return
 	}
 	url := payloadKey[common.PayloadKeyLength+1:]
-	err = http_client.SendPostRequest(url, payload) //TODO 添加重试
+	err = http_client.SendPostRequest(url, payload) //TODO 添加重试、删除记录
 	if err != nil {
-		fmt.Println("Publisher firstly send post err:", err)
+		count, e := handlePostErr(payloadKey)
+		fmt.Println("Publisher send post count:", count, "err:", err, time.Now())
+		if e != nil {
+			fmt.Println("rePost fail,", e)
+		}
 		return
 	}
+}
+
+func handlePostErr(payloadKey string) (count int, err error){
+	//取失败计数
+	count, err = redis.GetFailCount(payloadKey)
+	if err != nil {
+		return //暂时先不通知了，防止延时队列累积过多消息
+	}
+	count++
+	if count >= len(PostFrequency) { //这里表明超出最大通知次数。
+		return
+	}
+	//计算TTR，写入到zset中
+	delay := PostFrequency[count]
+	nextPostTime := time.Now().Unix() + int64(delay)
+	//更新失败计数
+	err = redis.SetFailCount(payloadKey, count, delay<<1)
+	if err != nil {
+		return
+	}
+	err = redis.AddZset(payloadKey, nextPostTime)
+	if err != nil {
+		return
+	}
+	return
 }
