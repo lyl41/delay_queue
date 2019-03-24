@@ -1,6 +1,7 @@
 package http_client
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -23,6 +24,7 @@ func SendPostRequest(url, data string) (err error) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if strings.ToUpper(string(body)) != PostResultSuccess {
+		err = errors.New("post result is not SUCCESS, try to rePost")
 		fmt.Println("post result is not SUCCESS, ", string(body))
 	}
 	return

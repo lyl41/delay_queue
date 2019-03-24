@@ -48,6 +48,7 @@ func publish(payloadKey string) {
 		}
 		return
 	}
+	fmt.Println("post success", payloadKey)
 }
 
 func handlePostErr(payloadKey string) (count int, err error){

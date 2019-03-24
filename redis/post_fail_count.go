@@ -27,7 +27,7 @@ func GetFailCount(payloadKey string) (count int, err error) {
 	con := pool.Get()
 	defer con.Close()
 	key := failPrefix + payloadKey
-	countStr, err := redis.String(con.Do("get", key))
+	count, err = redis.Int(con.Do("get", key))
 	if err != nil {
 		if err == redis.ErrNil {
 			err = nil
@@ -37,6 +37,5 @@ func GetFailCount(payloadKey string) (count int, err error) {
 		fmt.Println("redis GetFailCount err,", err)
 		return
 	}
-	count, err = strconv.Atoi(countStr)
 	return
 }

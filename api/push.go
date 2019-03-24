@@ -5,12 +5,14 @@ import (
 	"delay_queue/logic"
 	"fmt"
 	"golang.org/x/net/context"
-	"time"
 )
 
 func checkPush(req *delayqueue.PushRequest) (err error) {
-	if req.Data == "" || req.Ttr < time.Now().Unix()-1 {
+	if req.Data == "" || req.DelaySeconds < 0 {
 		return errParams
+	}
+	if len(req.NotifyUrl) > notifyUrlMaxLength {
+		return errNotifyLength
 	}
 	return
 }
@@ -25,7 +27,7 @@ func (Server) Push(ctx context.Context, req *delayqueue.PushRequest) (reply *del
 	if err = checkPush(req); err != nil {
 		return
 	}
-	dataId, err := logic.Push(req.Data, req.Ttr, req.NotifyUrl)
+	dataId, err := logic.Push(req.Data, req.DelaySeconds, req.NotifyUrl)
 	if err != nil {
 		return
 	}

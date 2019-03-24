@@ -12,6 +12,16 @@ func PushReadyQueue(queueName string, payloadKey string) (err error) {
 	return
 }
 
+func BatchPushReadyQueue(queueName string, payloadKeys []string) (err error) {
+	if len(payloadKeys) == 0 {
+		return
+	}
+	con := pool.Get()
+	defer con.Close()
+	_, err = con.Do("lpush", redis.Args{}.Add(queueName).AddFlat(payloadKeys)...)
+	return
+}
+
 //timeout is seconds which command 'brpop' will block when queue is empty.
 func PopReadyQueue(queueName string, timeout int) (payloadKey string, err error) {
 	con := pool.Get()

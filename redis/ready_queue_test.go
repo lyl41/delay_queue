@@ -16,3 +16,8 @@ func TestPopReadyQueue(t *testing.T) {
 	fmt.Println(payloadKeys)
 	fmt.Println("err:", err)
 }
+
+func TestBatchPushReadyQueue(t *testing.T) {
+	err := BatchPushReadyQueue(common.NotifyQueueName, []string{"nn", "mm", "xx"})
+	fmt.Println(err)
+}

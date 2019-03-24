@@ -32,3 +32,10 @@ func RangeZset(start, end int) (payloadKeys []string, err error) {
 	payloadKeys, err = redis.Strings(con.Do("zrange", common.ZsetName, start, end, "withscores"))
 	return
 }
+
+func RangeZsetByScore(start, end int64) (payloadKeys []string, err error) {
+	con := pool.Get()
+	defer con.Close()
+	payloadKeys, err = redis.Strings(con.Do("zrangebyscore", common.ZsetName, start, end, "withscores"))
+	return
+}

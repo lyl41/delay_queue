@@ -10,8 +10,13 @@ import (
 type Server struct {
 }
 
+const (
+	notifyUrlMaxLength = 66
+)
+
 var (
 	errParams = errors.New("参数错误")
+	errNotifyLength = errors.Errorf("notify_url最长不能超过%d", notifyUrlMaxLength)
 )
 
 func (Server) Ping(ctx context.Context, req *delayqueue.PingRequest) (*delayqueue.PingReply, error) {

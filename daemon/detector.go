@@ -4,13 +4,12 @@ import (
 	"delay_queue/common"
 	"delay_queue/redis"
 	"fmt"
-	"strconv"
 	"time"
 )
 
 func Detect() {
 	fmt.Println("Detector running...")
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Millisecond * 500)
 	defer ticker.Stop()
 	for {
 		<-ticker.C
@@ -19,36 +18,38 @@ func Detect() {
 }
 
 func detect() {
-	payloadKeys, err := redis.RangeZset(0, common.DetectStop)
+	payloadKeysAndScores, err := redis.RangeZsetByScore(0, time.Now().Unix())
 	if err != nil {
-		fmt.Println("Detector zrange err: ", err)
+		fmt.Println("Detector zrangebyscore err: ", err)
 		return
 	}
-	timestamp := time.Now().Unix()
-	payloadKeysNeedDel := make([]string, 0)
-	for i, val := range payloadKeys {
-		if (i & 1) == 0 { // even is member, odd is score
-			continue
-		}
-		score, _ := strconv.ParseInt(val, 10, 64)
-		if score <= timestamp { //Need to return, Push to ready queue.
-			payloadKey := payloadKeys[i-1]
-			queueName := common.NotifyQueueName
-			if len(payloadKey) == common.PayloadKeyLength {
-				queueName = common.QueueName
-			}
-			err = redis.PushReadyQueue(queueName, payloadKey)
-			if err != nil {
-				fmt.Println("Detector PushReadyQueue err, ", err)
-				continue
-			}
-			fmt.Println("success push to ready queue,", payloadKey, val, time.Now().Unix())
-			payloadKeysNeedDel = append(payloadKeysNeedDel, payloadKey)
+	if len(payloadKeysAndScores) == 0 {
+		return
+	}
+	payloadKeysNeedDel := make([]string, 0, len(payloadKeysAndScores))
+	notifyItems := make([]string, 0)
+	items := make([]string, 0)
+	for i := 0; i < len(payloadKeysAndScores); i += 2 { //奇数项是key
+		key := payloadKeysAndScores[i]
+		payloadKeysNeedDel = append(payloadKeysNeedDel, key)
+		if len(payloadKeysAndScores[i]) == common.PayloadKeyLength {
+			items = append(items, key)
+		} else {
+			notifyItems = append(notifyItems, key)
 		}
 	}
-	if len(payloadKeysNeedDel) > 0 {
-		if err = redis.RemZset(payloadKeysNeedDel); err != nil {
-			fmt.Println("Detector RemZset err:", err)
-		}
+	err = redis.BatchPushReadyQueue(common.NotifyQueueName, notifyItems)
+	if err != nil {
+		fmt.Println("Detector BatchPushReadyQueue err, ", err)
+		return
+	}
+	err = redis.BatchPushReadyQueue(common.QueueName, items)
+	if err != nil {
+		fmt.Println("Detector BatchPushReadyQueue err, ", err)
+		return
+	}
+	fmt.Println("success push to ready queue, num:", len(payloadKeysNeedDel), time.Now().Unix())
+	if err = redis.RemZset(payloadKeysNeedDel); err != nil {
+		fmt.Println("Detector RemZset err:", err)
 	}
 }

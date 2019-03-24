@@ -22,3 +22,8 @@ func TestRangeZset(t *testing.T) {
 	payloadKeys, err := RangeZset(0, 1)
 	fmt.Println(payloadKeys, err)
 }
+
+func TestRangeZsetByScore(t *testing.T) {
+	payloadKeys, err := RangeZsetByScore(0, 100)
+	fmt.Println(payloadKeys, err)
+}

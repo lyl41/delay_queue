@@ -12,7 +12,7 @@ const (
 	ZsetName        = `delay_queue_zset`
 
 	//zrange(0, DetectStop), http://doc.redisfans.com/sorted_set/zrange.html
-	DetectStop = 5
+	DetectStop = 10
 
 	PublisherPopQueueTimeout = 20 //seconds
 )
