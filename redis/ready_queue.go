@@ -12,13 +12,13 @@ func PushReadyQueue(queueName string, payloadKey string) (err error) {
 	return
 }
 
-func BatchPushReadyQueue(queueName string, payloadKeys []string) (err error) {
-	if len(payloadKeys) == 0 {
+func BatchPushReadyQueue(queueName string, keys []string) (err error) {
+	if len(keys) == 0 {
 		return
 	}
 	con := pool.Get()
 	defer con.Close()
-	_, err = con.Do("lpush", redis.Args{}.Add(queueName).AddFlat(payloadKeys)...)
+	_, err = con.Do("lpush", redis.Args{}.Add(queueName).AddFlat(keys)...)
 	return
 }
 

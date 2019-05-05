@@ -23,7 +23,7 @@ func Publish() {
 	}
 }
 
-var PostFrequency = []int{0, 2, 8, 30, 60*2, 60*5, 60*30, 60*60}
+var PostFrequency = []int{0, 2, 8, 30, 60 * 2, 60 * 5, 60 * 30, 60 * 60}
 
 func publish(payloadKey string) {
 	if len(payloadKey) <= common.PayloadKeyLength {
@@ -51,7 +51,7 @@ func publish(payloadKey string) {
 	fmt.Println("post success", payloadKey)
 }
 
-func handlePostErr(payloadKey string) (count int, err error){
+func handlePostErr(payloadKey string) (count int, err error) {
 	//取失败计数
 	count, err = redis.GetFailCount(payloadKey)
 	if err != nil {

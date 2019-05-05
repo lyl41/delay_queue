@@ -28,3 +28,8 @@ func TestDelPayload(t *testing.T) {
 //	}
 //	fmt.Println("ok")
 //}
+
+func TestIncrRedisCount(t *testing.T) {
+	err := IncrRedisCount(123, false)
+	fmt.Println(err)
+}

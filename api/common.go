@@ -15,7 +15,7 @@ const (
 )
 
 var (
-	errParams = errors.New("参数错误")
+	errParams       = errors.New("参数错误")
 	errNotifyLength = errors.Errorf("notify_url最长不能超过%d", notifyUrlMaxLength)
 )
 

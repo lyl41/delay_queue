@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ContentTypeJson = `application/json`
+	ContentTypeJson   = `application/json`
 	PostResultSuccess = `SUCCESS`
 )
 

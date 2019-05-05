@@ -18,6 +18,6 @@ func TestPopReadyQueue(t *testing.T) {
 }
 
 func TestBatchPushReadyQueue(t *testing.T) {
-	err := BatchPushReadyQueue(common.NotifyQueueName, []string{"nn", "mm", "xx"})
+	err := BatchPushReadyQueue(common.NotifyQueueName, []string{"nn", "mm"})
 	fmt.Println(err)
 }

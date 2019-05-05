@@ -1,6 +1,9 @@
 package redis
 
-import "github.com/garyburd/redigo/redis"
+import (
+	"github.com/garyburd/redigo/redis"
+	"strconv"
+)
 
 func SetPayload(key, value string) (err error) {
 	con := pool.Get()
@@ -42,6 +45,33 @@ func SetMultiPayload(kv []*RedisKv) (successCount int, err error) { //TODO ä¼˜åŒ
 			continue
 		}
 		successCount++
+	}
+	return
+}
+
+const successPrefix = `success`
+
+//const failPrefix = `fail`
+
+func IncrRedisCount(userId int64, success bool) (err error) {
+	prefix := successPrefix
+	if !success {
+		prefix = failPrefix
+	}
+	con := pool.Get()
+	defer con.Close()
+	key := prefix + strconv.FormatInt(userId, 10)
+	count, err := redis.Int64(con.Do("incr", key))
+	if err != nil {
+		return
+	}
+	if count == 1 {
+		timeout := 60
+		if !success {
+			timeout = 60
+		}
+		_, err = con.Do("expire", key, timeout)
+		return
 	}
 	return
 }
