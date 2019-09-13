@@ -16,6 +16,7 @@ func Push(value string, delaySeconds int64, notifyUrl string) (payloadKey string
 	if err != nil {
 		return
 	}
+	//time to return
 	ttr := time.Now().Unix() + delaySeconds
 	err = redis.AddZset(key, ttr)
 	if err != nil {

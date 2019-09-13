@@ -17,29 +17,30 @@ func Publish() {
 			fmt.Println("Publisher pop ready queue err:", err)
 			continue
 		}
-		if payloadKey != "" {
-			go publish(payloadKey) //TODO use go routine pool
+		payload, err := redis.GetPayload(payloadKey)
+		if err != nil {
+			fmt.Println("Publisher getPayload err:", err)
+			//出现了错误，我们重新扔回队列，保证消息不丢失
+			err = redis.PushReadyQueue(common.NotifyQueueName, payloadKey)
+			if err != nil {
+				fmt.Println("getPayload err and Push ready queue err", err)
+			}
+			continue
 		}
+		//readyQueue中有重复值时，这里保证不会发送多次，弱保证。当被主动pop了时，也不会发送。
+		if len(payload) == 0 {
+			continue
+		}
+		//publish中如果有错误，会扔回zset
+		go publish(payloadKey, payload)
 	}
 }
 
 var PostFrequency = []int{0, 2, 8, 30, 60 * 2, 60 * 5, 60 * 30, 60 * 60}
 
-func publish(payloadKey string) {
-	if len(payloadKey) <= common.PayloadKeyLength {
-		fmt.Println("Publisher payloadKey not valid, ", payloadKey)
-		return
-	}
-	payload, err := redis.GetPayload(payloadKey)
-	if err != nil {
-		fmt.Println("Publisher getPayload err:", err)
-		return
-	}
-	if len(payload) == 0 {
-		return
-	}
+func publish(payloadKey, payload string) {
 	url := payloadKey[common.PayloadKeyLength+1:]
-	err = http_client.SendPostRequest(url, payload) //TODO 添加重试、删除记录
+	err := http_client.SendPostRequest(url, payload) //TODO 创建全局的http client
 	if err != nil {
 		count, e := handlePostErr(payloadKey)
 		fmt.Println("Publisher send post count:", count, "err:", err, time.Now())
@@ -49,16 +50,15 @@ func publish(payloadKey string) {
 		return
 	}
 	fmt.Println("post success", payloadKey)
+	//处理成功才删除消息
+	_ = redis.DelPayload(payloadKey)
 }
 
 func handlePostErr(payloadKey string) (count int, err error) {
 	//取失败计数
-	count, err = redis.GetFailCount(payloadKey)
-	if err != nil {
-		return //暂时先不通知了，防止延时队列累积过多消息
-	}
+	count, _ = redis.GetFailCount(payloadKey)
 	count++
-	if count >= len(PostFrequency) { //这里表明超出最大通知次数。
+	if count >= len(PostFrequency) { //这里表明超出最大通知次数, 丢弃这条消息
 		return
 	}
 	//计算TTR，写入到zset中
@@ -67,7 +67,7 @@ func handlePostErr(payloadKey string) (count int, err error) {
 	//更新失败计数
 	err = redis.SetFailCount(payloadKey, count, delay<<1)
 	if err != nil {
-		return
+		//这里不丢弃消息
 	}
 	err = redis.AddZset(payloadKey, nextPostTime)
 	if err != nil {

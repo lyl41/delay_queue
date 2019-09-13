@@ -18,6 +18,7 @@ func Detect() {
 }
 
 func detect() {
+	//取出所有比当前时间戳小的数据id
 	payloadKeysAndScores, err := redis.RangeZsetByScore(0, time.Now().Unix())
 	if err != nil {
 		fmt.Println("Detector zrangebyscore err: ", err)

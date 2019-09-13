@@ -14,5 +14,6 @@ func Pop(timeout int64) (data string, err error) {
 	if err != nil {
 		return
 	}
+	_ = redis.DelPayload(payloadKey)
 	return
 }
