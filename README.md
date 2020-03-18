@@ -1,5 +1,7 @@
 # delay_queue 延迟队列
 
+此项目只供学习golang与redis使用。
+
 ## 大体实现思路：
 - 利用redis的zset实现。
 - zset中score是TTR（time to return），member是数据的id。
