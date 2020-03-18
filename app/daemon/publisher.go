@@ -1,44 +1,71 @@
 package daemon
 
 import (
+	"context"
 	"delay_queue/app/common"
 	"delay_queue/app/http_client"
 	"delay_queue/app/redis"
 	"fmt"
+	"sync"
 	"time"
 )
 
-func Publish() {
+func Publish(ctx context.Context, wg *sync.WaitGroup) {
+	defer func() {
+		if wg != nil {
+			fmt.Println("publisher stopped")
+			wg.Done()
+		}
+	}()
 	fmt.Println("Publisher running...")
 	for {
-		//TODO check redis是否会在空闲时释放连接
-		payloadKey, err := redis.PopReadyQueue(common.NotifyQueueName, common.PublisherPopQueueTimeout)
-		if err != nil {
-			fmt.Println("Publisher pop ready queue err:", err)
-			continue
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			handle()
 		}
-		payload, err := redis.GetPayload(payloadKey)
-		if err != nil {
-			fmt.Println("Publisher getPayload err:", err)
-			//出现了错误，我们重新扔回队列，保证消息不丢失
-			err = redis.PushReadyQueue(common.NotifyQueueName, payloadKey)
-			if err != nil {
-				fmt.Println("getPayload err and Push ready queue err", err)
-			}
-			continue
-		}
-		//readyQueue中有重复值时，这里保证不会发送多次，弱保证。当被主动pop了时，也不会发送。
-		if len(payload) == 0 {
-			continue
-		}
-		//publish中如果有错误，会扔回zset
-		go publish(payloadKey, payload)
 	}
+}
+
+func handle() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("publish handle panic err, ", r)
+		}
+	}()
+	//TODO check redis是否会在空闲时释放连接
+	payloadKey, err := redis.PopReadyQueue(common.NotifyQueueName, common.PublisherPopQueueTimeout)
+	if err != nil {
+		fmt.Println("Publisher pop ready queue err:", err)
+		return
+	}
+	payload, err := redis.GetPayload(payloadKey)
+	if err != nil {
+		fmt.Println("Publisher getPayload err:", err)
+		//出现了错误，我们重新扔回队列，保证消息不丢失
+		err = redis.PushReadyQueue(common.NotifyQueueName, payloadKey)
+		if err != nil {
+			fmt.Println("getPayload err and Push ready queue err", err)
+		}
+		return
+	}
+	//readyQueue中有重复值时，这里保证不会发送多次，弱保证。当被主动pop了时，也不会发送。
+	if len(payload) == 0 {
+		return
+	}
+	//publish中如果有错误，会扔回zset
+	go publish(payloadKey, payload)
 }
 
 var PostFrequency = []int{0, 2, 8, 30, 60 * 2, 60 * 5, 60 * 30, 60 * 60}
 
 func publish(payloadKey, payload string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("publish panic err, ", r)
+		}
+	}()
 	url := payloadKey[common.PayloadKeyLength+1:]
 	err := http_client.SendPostRequest(url, payload) //TODO 创建全局的http client
 	if err != nil {

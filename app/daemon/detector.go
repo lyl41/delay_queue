@@ -1,23 +1,40 @@
 package daemon
 
 import (
+	"context"
 	"delay_queue/app/common"
 	"delay_queue/app/redis"
 	"fmt"
+	"sync"
 	"time"
 )
 
-func Detect() {
+func Detect(ctx context.Context, wg *sync.WaitGroup) {
+	defer func() {
+		if wg != nil {
+			fmt.Println("Detect stopped")
+			wg.Done()
+		}
+	}()
 	fmt.Println("Detector running...")
-	ticker := time.NewTicker(time.Millisecond * 500)
+	ticker := time.NewTicker(time.Millisecond * 250)
 	defer ticker.Stop()
 	for {
-		<-ticker.C
-		detect()
+		select {
+		case <-ticker.C:
+			detect()
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
 func detect() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("detect panic, err", r)
+		}
+	}()
 	//取出所有比当前时间戳小的数据id
 	payloadKeysAndScores, err := redis.RangeZsetByScore(0, time.Now().Unix())
 	if err != nil {

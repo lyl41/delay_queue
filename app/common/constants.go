@@ -14,5 +14,5 @@ const (
 	//zrange(0, DetectStop), http://doc.redisfans.com/sorted_set/zrange.html
 	DetectStop = 10
 
-	PublisherPopQueueTimeout = 20 //seconds
+	PublisherPopQueueTimeout = 2 //seconds
 )
