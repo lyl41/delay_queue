@@ -10,8 +10,8 @@
 
 
 
-![image](https://github.com/hackssssss/test_git/blob/master/images/20190218195349703.png)
-![image](https://raw.githubusercontent.com/hackssssss/test_git/master/images/20190218195349703.png)
+![image](https://qschou.oss-cn-hangzhou.aliyuncs.com/20190218195349703.png)
+
 
 
 ## 已有功能：
